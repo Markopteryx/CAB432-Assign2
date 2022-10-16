@@ -29,7 +29,7 @@ resource "aws_launch_configuration" "n8039062-frontend" {
 
   iam_instance_profile = "ec2SSMCab432"
 
-  image_id = "ami-0caf1eef26e96e6b0"
+  image_id = "ami-066a35fb8bb4d12eb"
 
   instance_type = "t2.micro"
 
@@ -77,5 +77,3 @@ resource "aws_autoscaling_group" "bar" {
     "subnet-04ca053dcbe5f49cc"
   ]
 }
-
-
