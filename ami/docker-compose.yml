@@ -2,7 +2,7 @@ version: "3"
 
 services:
   assign2:
-    image: ${IMAGE_URL}
+    image: $IMAGE_URL
     container_name: assign2
     restart: always
     ports:
