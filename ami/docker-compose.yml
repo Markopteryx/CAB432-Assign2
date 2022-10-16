@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  redis-server:
+    image: ${IMAGE_URL}
+    container_name: backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - /tmp/app/.env

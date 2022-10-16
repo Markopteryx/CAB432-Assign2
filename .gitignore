@@ -3,3 +3,5 @@ terraform.tfstate*
 .terraform.lock.hcl
 *node_modules*
 .github/workflows/test
+login
+.env
