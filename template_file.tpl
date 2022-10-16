@@ -1,11 +1,11 @@
 #!/bin/bash
 
-echo "TEST=TRUE" >> /tmp/app/.env
+echo "TEST=TRUE" >> /home/ubuntu/app/.env
+echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> /home/ubuntu/app/.env
+echo "IMAGE_URL=${IMAGE_URL}" >> /home/ubuntu/app/.env
 
 export GITHUB_TOKEN="${GITHUB_TOKEN}"
 
-export IMAGE_URL="${IMAGE_URL}"
+echo "${GITHUB_TOKEN}" | sudo docker login ghcr.io -u Markopteryx --password-stdin
 
-echo "${GITHUB_TOKEN}" | docker login ghcr.io -u Markopteryx --password-stdin
-
-docker-compose -f /tmp/app/docker-compose.yml --env-file /tmp/app/.env up -d
+sudo docker-compose -f /home/ubuntu/app/docker-compose.yml --env-file /home/ubuntu/app/.env up -d

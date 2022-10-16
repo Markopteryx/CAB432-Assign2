@@ -24,7 +24,7 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      - ":8000"
+      - "7999:8000"
     command: "npm run dev"
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
