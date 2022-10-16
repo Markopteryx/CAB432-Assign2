@@ -4,11 +4,9 @@ require('dotenv').config();
 const app = express();
 const port = 8000;
 
-console.log(process.env.TREMAIN || "failed")
-console.log(process.env.MARKO || "failed")
-
+var env_test = process.env.TEST || 'FALSE'
 app.get("/health", (req, res) => {
-	res.send("It's working!");
+	res.send("Application status: healthly \nEnvironment variables loaded: " + env_test);
 })
 
 app.listen(port, () => {

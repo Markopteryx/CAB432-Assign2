@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "TEST=gmaer" >> /tmp/app/.env
+echo "TEST=TRUE" >> /tmp/app/.env
 
 export GITHUB_TOKEN="${GITHUB_TOKEN}"
 
