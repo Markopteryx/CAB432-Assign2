@@ -24,10 +24,11 @@ services:
       - backend
       - redis-server
     build:
-      context: ./frontend
+      context: ./application
+      dockerfile: application/Dockerfile_frontend
     container_name: frontend
     volumes:
-      - ./frontend:/app
+      - ./application:/app
     ports:
       - "8000:8000"
     command: "npm run dev"
@@ -42,10 +43,11 @@ services:
     depends_on:
       - redis-server
     build:
-      context: ./backend
+      context: ./application
+      dockerfile:  application/Dockerfile_backend
     container_name: backend
     volumes:
-      - ./backend:/app
+      - ./application:/app
     ports:
       - "7999:8000"
     command: "npm run dev"
