@@ -38,11 +38,29 @@ resource "aws_launch_configuration" "n8039062-frontend" {
   user_data = data.template_file.frontend.rendered
 }
 
+resource "aws_db_instance" "renders-db" {
+  allocated_storage = 20
+  max_allocated_storage = 1000
+  engine = "mysql"
+  engine_version = "8.0.30"
+  instance_class = "db.t3.micro"
+  name = "n8038062-assign2"
+  username = "admin"
+  parameter_group_name = "default.mysql8.0"
+  publicly_accessible = true
+}
+
 data "template_file" "backend" {
   template = "${file("./template_file.tpl")}"
 
   vars = {
     GITHUB_TOKEN = var.GITHUB_TOKEN
+    DB_CONNECTION = var.DB_CONNECTION
+    DB_HOST = var.DB_HOST
+    DB_PORT = var.DB_PORT
+    DB_DATABASE = var.DB_DATABASE
+    DB_USERNAME = var.DB_USERNAME
+    DB_PASSWORD = var.DB_PASSWORD
     IMAGE_URL = "ghcr.io/markopteryx/cab432-n8039062-backend:main"
   }
 }
@@ -52,12 +70,53 @@ data "template_file" "frontend" {
 
   vars = {
     GITHUB_TOKEN = var.GITHUB_TOKEN
+    DB_CONNECTION = var.DB_CONNECTION
+    DB_HOST = var.DB_HOST
+    DB_PORT = var.DB_PORT
+    DB_DATABASE = var.DB_DATABASE
+    DB_USERNAME = var.DB_USERNAME
+    DB_PASSWORD = var.DB_PASSWORD
     IMAGE_URL = "ghcr.io/markopteryx/cab432-n8039062-frontend:main"
   }
 }
 
 variable "GITHUB_TOKEN" {
     description = "A personal access token with read:packages permissions"
+    type = string
+}
+
+variable "DB_CONNECTION" {
+    description = "The type of RDS used"
+    default = "mysql"
+    type = string
+}
+
+variable "DB_HOST" {
+    description = "The address of the RDS"
+    default = aws_db_instance.renders-db.address
+    type = string
+}
+
+variable "DB_PORT" {
+    description = "The port of the RDS"
+    default = "3306"
+    type = string
+}
+
+variable "DB_DATABASE" {
+    description = "The name of the RDS"
+    default = "renders"
+    type = string
+}
+
+variable "DB_USERNAME" {
+    description = "The username of the RDS"
+    default = "admin"
+    type = string
+}
+
+variable "DB_PASSWORD" {
+    description = "The address of the RDS"
     type = string
 }
 

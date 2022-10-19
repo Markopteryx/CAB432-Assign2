@@ -1,9 +1,28 @@
 version: "3"
 
 services:
+  redis-server:
+    image: bitnami/redis:latest
+    container_name: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+
+  renders-database:
+    image: mysql:8.0.30
+    container_name: renders-database
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=n8039062-assign2
+    env_file:
+      - .env
+
   frontend:
     depends_on:
       - backend
+      - redis-server
     build:
       context: ./frontend
     container_name: frontend
@@ -16,8 +35,12 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+    env_file:
+      - .env
 
   backend:
+    depends_on:
+      - redis-server
     build:
       context: ./backend
     container_name: backend
@@ -30,3 +53,5 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+    env_file:
+      - .env

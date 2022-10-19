@@ -2,6 +2,8 @@ FROM node:18.8.0
 
 LABEL org.opencontainers.image.authors="marko.uksanovic1@gmail.com"
 
+ENV DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
+
 WORKDIR /app
 
 COPY package*.json ./
@@ -9,6 +11,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+COPY ../docker ../docker
 
 EXPOSE 8000
 
