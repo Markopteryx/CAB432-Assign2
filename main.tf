@@ -38,16 +38,8 @@ resource "aws_launch_configuration" "n8039062-frontend" {
   user_data = data.template_file.frontend.rendered
 }
 
-resource "aws_db_instance" "renders-db" {
-  allocated_storage = 20
-  max_allocated_storage = 1000
-  engine = "mysql"
-  engine_version = "8.0.30"
-  instance_class = "db.t3.micro"
-  db_name = "n8038062-assign2"
-  username = "admin"
-  parameter_group_name = "default.mysql8.0"
-  publicly_accessible = true
+resource "aws_sqs_queue" "n8039062-Assign2-SQS" {
+  name = "n8039062-Assign2-SQS"
 }
 
 data "template_file" "backend" {
@@ -56,12 +48,13 @@ data "template_file" "backend" {
   vars = {
     GITHUB_TOKEN = var.GITHUB_TOKEN
     DB_CONNECTION = var.DB_CONNECTION
-    DB_HOST = aws_db_instance.renders-db.address
+    DB_HOST = var.MYSQL_ENDPOINT
     DB_PORT = var.DB_PORT
     DB_DATABASE = var.DB_DATABASE
     DB_USERNAME = var.DB_USERNAME
     DB_PASSWORD = var.DB_PASSWORD
     IMAGE_URL = "ghcr.io/markopteryx/cab432-n8039062-backend:main"
+    REDIS_HOST = var.REDIS_ENDPOINT
   }
 }
 
@@ -71,12 +64,13 @@ data "template_file" "frontend" {
   vars = {
     GITHUB_TOKEN = var.GITHUB_TOKEN
     DB_CONNECTION = var.DB_CONNECTION
-    DB_HOST = aws_db_instance.renders-db.address
+    DB_HOST = var.MYSQL_ENDPOINT
     DB_PORT = var.DB_PORT
     DB_DATABASE = var.DB_DATABASE
     DB_USERNAME = var.DB_USERNAME
     DB_PASSWORD = var.DB_PASSWORD
     IMAGE_URL = "ghcr.io/markopteryx/cab432-n8039062-frontend:main"
+    REDIS_HOST = var.REDIS_ENDPOINT
   }
 }
 
@@ -111,6 +105,18 @@ variable "DB_USERNAME" {
 
 variable "DB_PASSWORD" {
     description = "The address of the RDS"
+    type = string
+}
+
+variable "REDIS_ENDPOINT" {
+    default = "n8039062-assign2.km2jzi.ng.0001.apse2.cache.amazonaws.com"
+    description = "AWS Redis Primary Endpoint"
+    type = string
+}
+
+variable "MYSQL_ENDPOINT" {
+    default = "n8039062-assign2.ce2haupt2cta.ap-southeast-2.rds.amazonaws.com"
+    description = "AWS MySQL Primary Endpoint"
     type = string
 }
 

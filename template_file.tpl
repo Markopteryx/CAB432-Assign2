@@ -11,6 +11,8 @@ echo "DB_DATABASE=${DB_DATABASE}" >> /home/ubuntu/app/.env
 echo "DB_USERNAME=${DB_USERNAME}" >> /home/ubuntu/app/.env
 echo "DB_PASSWORD=${DB_PASSWORD}" >> /home/ubuntu/app/.env
 
+echo "REDIS_HOST=${REDIS_HOST}" >> /home/ubuntu/app/.env
+
 export GITHUB_TOKEN="${GITHUB_TOKEN}"
 
 echo "${GITHUB_TOKEN}" | sudo docker login ghcr.io -u Markopteryx --password-stdin

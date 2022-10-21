@@ -1,23 +1,7 @@
 const express = require("express")
-const db = require('./database/database');
+const { Transfer } = require('./transfer')
 require('dotenv').config();
 
-var db_status;
-
-
-try {
-	db.authenticate()
-	var db_status = "authenticated"
-} catch(error) {
-	console.log(error, error.message)
-}
-
-try {
-	db.sync()
-	var db_status = "synced"
-} catch(error) {
-	console.log(error, error.message)
-}
 
 const app = express();
 const port = 8000;
