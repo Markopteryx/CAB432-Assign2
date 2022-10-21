@@ -44,7 +44,7 @@ resource "aws_db_instance" "renders-db" {
   engine = "mysql"
   engine_version = "8.0.30"
   instance_class = "db.t3.micro"
-  name = "n8038062-assign2"
+  db_name = "n8038062-assign2"
   username = "admin"
   parameter_group_name = "default.mysql8.0"
   publicly_accessible = true
@@ -56,7 +56,7 @@ data "template_file" "backend" {
   vars = {
     GITHUB_TOKEN = var.GITHUB_TOKEN
     DB_CONNECTION = var.DB_CONNECTION
-    DB_HOST = var.DB_HOST
+    DB_HOST = aws_db_instance.renders-db.address
     DB_PORT = var.DB_PORT
     DB_DATABASE = var.DB_DATABASE
     DB_USERNAME = var.DB_USERNAME
@@ -71,7 +71,7 @@ data "template_file" "frontend" {
   vars = {
     GITHUB_TOKEN = var.GITHUB_TOKEN
     DB_CONNECTION = var.DB_CONNECTION
-    DB_HOST = var.DB_HOST
+    DB_HOST = aws_db_instance.renders-db.address
     DB_PORT = var.DB_PORT
     DB_DATABASE = var.DB_DATABASE
     DB_USERNAME = var.DB_USERNAME
@@ -88,12 +88,6 @@ variable "GITHUB_TOKEN" {
 variable "DB_CONNECTION" {
     description = "The type of RDS used"
     default = "mysql"
-    type = string
-}
-
-variable "DB_HOST" {
-    description = "The address of the RDS"
-    default = aws_db_instance.renders-db.address
     type = string
 }
 

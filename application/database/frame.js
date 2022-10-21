@@ -1,12 +1,13 @@
 const { DataTypes, Model } = require('sequelize');
 
 module.exports = (sequelize) => {
-  class Task extends Model {}
+  class Frame extends Model {}
 
-  Task.init({
+  Frame.init({
     // Model attributes are defined here
     frameID: {
       type: DataTypes.STRING,
+      primaryKey: true
     },
     renderID: {
       type: DataTypes.STRING,
@@ -25,7 +26,7 @@ module.exports = (sequelize) => {
   }, {
     // Other model options go here
     sequelize, // We need to pass the connection instance
-    modelName: 'Task' // We need to choose the model name
+    modelName: 'Frame' // We need to choose the model name
   });
-  return Task;
+  return Frame;
 };

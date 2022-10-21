@@ -2,7 +2,7 @@ require('dotenv').config();
 const { Sequelize, QueryInterface } = require('sequelize');
 
 var Render = require('./render')
-var Task = require('./task')
+var Frame = require('./frame')
 
 const DB_HOST = process.env.DB_HOST
 const DB_DATABASE = process.env.DB_DATABASE
@@ -19,18 +19,14 @@ const sequelize = new Sequelize(DB_DATABASE, DB_USERNAME, DB_PASSWORD, {
     }
 })
 
-Task(sequelize)
-Render(sequelize)
+var frame_ = Frame(sequelize)
+var render_ = Render(sequelize)
 
-console.log(typeof(sequelize.models.Task))
+sequelize.sync().then(
+  () => {frame_.belongsTo(render_, {as: 'parentRender', foreignKey: {allowNull: false, name: 'renderID'}});
+  render_.hasMany(frame_, {as: 'frameList', foreignKey: {allowNull: false, name: 'renderID'}});
 
-sequelize.models.Task.belongsTo(Render, {as: 'renderID', foreignKey: {allowNull: false, name: 'renderID'}})
-sequelize.models.Render.hasMany(Task, {as: 'frameList', foreignKey: {allowNull: false, name: 'renderID'}})
-
-QueryInterface.addConstraint('Task', {
-    fields: ['renderID', 'taskID'],
-    type: 'primary key',
-    name: 'frameKey'
-})
+  sequelize.sync()
+});
 
 module.exports = sequelize

@@ -11,18 +11,36 @@ services:
 
   renders-database:
     image: mysql:8.0.30
+    cap_add:
+      - SYS_NICE
     container_name: renders-database
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_DATABASE=n8039062-assign2
+      - MYSQL_DATABASE=Renders
     env_file:
       - .env
+    volumes:
+      - my-db:/mnt/c/Users/Marko/Desktop/Assignment-2/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "-uroot", "-ptest", "ping"]
+      timeout: 1s
+      retries: 2
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    ports:
+      - 8090:80
+    environment:
+      - PMA_HOST=renders-database
+    depends_on:
+      renders-database:
+        condition: service_healthy
 
   frontend:
     depends_on:
       - backend
-      - redis-server
     build:
       context: ./application
       dockerfile: application/Dockerfile_frontend
@@ -41,7 +59,8 @@ services:
 
   backend:
     depends_on:
-      - redis-server
+      renders-database:
+        condition: service_healthy
     build:
       context: ./application
       dockerfile:  application/Dockerfile_backend
@@ -57,3 +76,7 @@ services:
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
     env_file:
       - .env
+
+volumes:
+  my-db:
+    driver: local
