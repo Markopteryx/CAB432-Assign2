@@ -1,7 +1,6 @@
 const express = require("express")
-const { Transfer } = require('./transfer')
+//const { Transfer } = require('./transfer')
 require('dotenv').config();
-
 
 const app = express();
 const port = 8000;
@@ -22,7 +21,7 @@ app.get("/health", (req, res) => {
 		  </tr>
 		  <tr>
 			<td>Database Status</td>
-			<td>${db_status}</td>
+			<td></td>
 		  </tr>
 		  <tr>
 			<td></td>
@@ -31,6 +30,14 @@ app.get("/health", (req, res) => {
 		</tbody>
 		</table>`);
 })
+
+app.get('/status/:id', (req, res) => {
+	res.send(`The status of ${req.params.id} is completed`)
+})
+
+app.get('/express_backend', (req, res) => { //Line 9
+	res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' }); //Line 10
+});
 
 app.listen(port, () => {
 	console.log(`Example app listening on container port: ${port}`);

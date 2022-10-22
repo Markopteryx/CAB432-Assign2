@@ -6,12 +6,27 @@ require('dotenv').config();
 var redisHost = process.env.REDIS_HOST || 'redis-server'
 
 // Create Redis Client
-const redisClient = redis.createClient({
+const redisBufferClient = redis.createClient({
+    socket: {
+        port: 6379,
+        host: redisHost,
+        return_buffers: true
+    }
+});
+   (async () => {
+         try {
+            await redisClient.connect({
+            });
+        } catch (err) { 
+            console.log (err);
+        } 
+})();
+
+const redisStringClient = redis.createClient({
     socket: {
         port: 6379,
         host: redisHost
-    },
-    {'return_buffers' : true} <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    }
 });
    (async () => {
          try {
@@ -46,28 +61,54 @@ var bucketParams = {
 })();
 
 
-async function uploadFile() {
-
+async function uploadBlendFile(object) {
+    "..."
 }
 
-async function uploadToRedis(key, body) {
-    redisClient.setEx(
-        key,
+async function uploadLocalFile(filePath) {
+    var redisPromise = uploadToRedis(filePath)
+    var s3Promise = uploadFileToS3(filePath)
+
+    await redisPromise
+    await s3Promise
+}
+
+async function downloadFile(filePath) {
+    var result = await getFromRedis(filePath)
+
+    if (result) {
+        fs.writeFileSync(filePath, result) 
+        return
+    }
+
+    var result = await getFileFromS3(filePath)
+    if(result) {
+        fs.writeFileSync(filePath, result)
+        uploadToRedis(filePath)
+        return 
+    } 
+
+    throw new Error("File not found in Redis or S3 :(")
+}
+
+async function uploadToRedis(filePath) {
+    redisClient.set(
+        filePath,
         3600,
-        JSON.stringify({...body})
+        fs.readFileSync(filePath)
     )
 }
 
-async function getFromRedis(key) {
-    data = await redisClient.get(key)
+async function getFromRedis(filePath) {
+    data = await redisClient.get(filePath)
     return data
 }
 
-async function uploadFileToS3(key, fileName) {
-    const fileContent = fs.readFileSync(fileName);
-    const objectParams = { Bucket: bucketName, Key: key, Body: fileContent};        
+async function uploadFileToS3(filePath) {
+    const fileContent = fs.readFileSync(filePath);
+    const objectParams = { Bucket: bucketName, Key: filePath, Body: fileContent};        
     await S3.putObject(objectParams).promise();  
-    console.log(`Successfully uploaded data to ${bucketName}/${key}`); 
+    console.log(`Successfully uploaded data to ${bucketName}/${filePath}`); 
 }
 
 async function getFileFromS3(key) {
@@ -75,10 +116,10 @@ async function getFileFromS3(key) {
     try {    
         const params = {Bucket: bucketName, Key: key}; 
         S3Result = await S3.getObject(params).promise();
-        fs.writeFileSync(key, S3Result)
     } catch (error) {}
     return S3Result;
 }
+
 
 var db_status;
 
@@ -95,3 +136,10 @@ try {
 } catch(error) {
 	console.log(error, error.message)
 }
+
+
+module.exports = {
+    getFile: getFile,
+    uploadFile : uploadFile,
+    incrementCounter : incrementCounter
+  };

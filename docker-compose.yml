@@ -38,13 +38,13 @@ services:
       renders-database:
         condition: service_healthy
 
-  frontend:
+  backend:
     depends_on:
-      - backend
+      - worker
     build:
       context: ./application
-      dockerfile: application/Dockerfile_frontend
-    container_name: frontend
+      dockerfile: Dockerfile_backend
+    container_name: backend
     volumes:
       - ./application:/app
     ports:
@@ -57,14 +57,24 @@ services:
     env_file:
       - .env
 
-  backend:
+  frontend:
+    build: 
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    volumes:
+      - ./frontend:/frontend
+
+  worker:
     depends_on:
       renders-database:
         condition: service_healthy
     build:
       context: ./application
-      dockerfile:  application/Dockerfile_backend
-    container_name: backend
+      dockerfile: Dockerfile_worker
+    container_name: worker
     volumes:
       - ./application:/app
     ports:
