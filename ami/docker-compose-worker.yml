@@ -2,7 +2,7 @@ version: "3"
 
 services:
   assign2:
-    image: $IMAGE_URL
+    image: "ghcr.io/markopteryx/cab432-n8039062-worker:main"
     container_name: assign2
     restart: always
     ports:

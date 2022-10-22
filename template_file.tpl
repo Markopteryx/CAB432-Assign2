@@ -13,6 +13,8 @@ echo "DB_PASSWORD=${DB_PASSWORD}" >> /home/ubuntu/app/.env
 
 echo "REDIS_HOST=${REDIS_HOST}" >> /home/ubuntu/app/.env
 
+echo "${cat ./ami/docker-compose-worker.yml}" >> /home/ubuntu/app/docker-compose.yml
+
 export GITHUB_TOKEN="${GITHUB_TOKEN}"
 
 echo "${GITHUB_TOKEN}" | sudo docker login ghcr.io -u Markopteryx --password-stdin

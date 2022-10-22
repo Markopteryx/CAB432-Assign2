@@ -1,4 +1,4 @@
-name: Build Frontend
+name: Build Worker
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - 'main'
 
 jobs:
-  build-frontend:
+  build-worker:
     runs-on: ubuntu-latest
     steps:
 
@@ -27,13 +27,13 @@ jobs:
       id: meta
       uses: docker/metadata-action@v3
       with:
-        images: ghcr.io/markopteryx/CAB432-n8039062-Frontend
+        images: ghcr.io/markopteryx/CAB432-n8039062-Worker
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v3
       with:
-        context: ./frontend
-        file: frontend/Dockerfile
+        context: ./application
+        file: application/Dockerfile_worker
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
