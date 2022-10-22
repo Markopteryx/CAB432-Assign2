@@ -22,7 +22,7 @@ resource "random_id" "name" {
   byte_length = 6
 }
 
-resource "aws_launch_configuration" "n8039062-frontend" {
+resource "aws_launch_configuration" "n8039062-backend" {
   name = random_id.name.hex
 
   key_name = "marko-assign1"
@@ -35,7 +35,7 @@ resource "aws_launch_configuration" "n8039062-frontend" {
 
   security_groups = ["sg-032bd1ff8cf77dbb9"]
   
-  user_data = data.template_file.frontend.rendered
+  user_data = data.template_file.backend.rendered
 }
 
 resource "aws_sqs_queue" "n8039062-Assign2-SQS" {
@@ -53,12 +53,12 @@ data "template_file" "backend" {
     DB_DATABASE = var.DB_DATABASE
     DB_USERNAME = var.DB_USERNAME
     DB_PASSWORD = var.DB_PASSWORD
-    IMAGE_URL = "ghcr.io/markopteryx/cab432-n8039062-backend:main"
     REDIS_HOST = var.REDIS_ENDPOINT
+    COMPOSE = file("${path.module}/ami/docker-compose-backend.yml")
   }
 }
 
-data "template_file" "frontend" {
+data "template_file" "worker" {
   template = "${file("./template_file.tpl")}"
 
   vars = {
@@ -69,8 +69,9 @@ data "template_file" "frontend" {
     DB_DATABASE = var.DB_DATABASE
     DB_USERNAME = var.DB_USERNAME
     DB_PASSWORD = var.DB_PASSWORD
-    IMAGE_URL = "ghcr.io/markopteryx/cab432-n8039062-frontend:main"
     REDIS_HOST = var.REDIS_ENDPOINT
+    INSTANCE_TYPE = "worker"
+    COMPOSE = file("${path.module}/ami/docker-compose-worker.yml")
   }
 }
 
@@ -121,8 +122,8 @@ variable "MYSQL_ENDPOINT" {
 }
 
 resource "aws_autoscaling_group" "bar" {
-  name                 = "${aws_launch_configuration.n8039062-frontend.name}"
-  launch_configuration = aws_launch_configuration.n8039062-frontend.name
+  name                 = "${aws_launch_configuration.n8039062-backend.name}"
+  launch_configuration = aws_launch_configuration.n8039062-backend.name
   min_size             = 1
   max_size             = 1
 
@@ -135,4 +136,8 @@ resource "aws_autoscaling_group" "bar" {
     "subnet-075811427d5564cf9",
     "subnet-04ca053dcbe5f49cc"
   ]
+}
+
+output "rendered" {
+  value = "${data.template_file.backend.rendered}"
 }

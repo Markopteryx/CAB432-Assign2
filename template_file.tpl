@@ -1,8 +1,12 @@
 #!/bin/bash
 
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1>log.out 2>&1
+
+
 echo "TEST=TRUE" >> /home/ubuntu/app/.env
 echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> /home/ubuntu/app/.env
-echo "IMAGE_URL=${IMAGE_URL}" >> /home/ubuntu/app/.env
 
 echo "DB_CONNECTION=${DB_CONNECTION}" >> /home/ubuntu/app/.env
 echo "DB_HOST=${DB_HOST}" >> /home/ubuntu/app/.env
@@ -13,7 +17,7 @@ echo "DB_PASSWORD=${DB_PASSWORD}" >> /home/ubuntu/app/.env
 
 echo "REDIS_HOST=${REDIS_HOST}" >> /home/ubuntu/app/.env
 
-echo "${cat ./ami/docker-compose-worker.yml}" >> /home/ubuntu/app/docker-compose.yml
+echo "${COMPOSE}" > /home/ubuntu/app/docker-compose.yml
 
 export GITHUB_TOKEN="${GITHUB_TOKEN}"
 
