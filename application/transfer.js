@@ -1,5 +1,6 @@
 const db = require('./database/database');
 const fs = require('fs')
+const redis = require('redis');  
 const AWS = require('aws-sdk')
 require('dotenv').config();
 
@@ -15,7 +16,7 @@ const redisBufferClient = redis.createClient({
 });
    (async () => {
          try {
-            await redisClient.connect({
+            await redisBufferClient.connect({
             });
         } catch (err) { 
             console.log (err);
@@ -30,7 +31,7 @@ const redisStringClient = redis.createClient({
 });
    (async () => {
          try {
-            await redisClient.connect({
+            await redisStringClient.connect({
             });
         } catch (err) { 
             console.log (err);
@@ -61,12 +62,8 @@ var bucketParams = {
 })();
 
 
-async function uploadBlendFile(object) {
-    "..."
-}
-
-async function uploadLocalFile(filePath) {
-    var redisPromise = uploadToRedis(filePath)
+async function uploadFile(filePath) {
+    var redisPromise = uploadBinaryToRedis(filePath)
     var s3Promise = uploadFileToS3(filePath)
 
     await redisPromise
@@ -74,7 +71,7 @@ async function uploadLocalFile(filePath) {
 }
 
 async function downloadFile(filePath) {
-    var result = await getFromRedis(filePath)
+    var result = await getBinaryFromRedis(filePath)
 
     if (result) {
         fs.writeFileSync(filePath, result) 
@@ -84,23 +81,24 @@ async function downloadFile(filePath) {
     var result = await getFileFromS3(filePath)
     if(result) {
         fs.writeFileSync(filePath, result)
-        uploadToRedis(filePath)
+        uploadBinaryToRedis(filePath)
         return 
     } 
 
     throw new Error("File not found in Redis or S3 :(")
 }
 
-async function uploadToRedis(filePath) {
-    redisClient.set(
+async function uploadBinaryToRedis(filePath) {
+    redisBufferClient.set(
         filePath,
         3600,
         fs.readFileSync(filePath)
     )
+    console.log(`Successfully uploaded ${filePath} to Redis`); 
 }
 
-async function getFromRedis(filePath) {
-    data = await redisClient.get(filePath)
+async function getBinaryFromRedis(filePath) {
+    data = await redisBufferClient.get(filePath)
     return data
 }
 
@@ -120,7 +118,7 @@ async function getFileFromS3(key) {
     return S3Result;
 }
 
-
+/*
 var db_status;
 
 try {
@@ -136,10 +134,13 @@ try {
 } catch(error) {
 	console.log(error, error.message)
 }
-
+*/
 
 module.exports = {
-    getFile: getFile,
+    // create RDS record
+    // update RDS record
+    // read RDS record
     uploadFile : uploadFile,
-    incrementCounter : incrementCounter
+    downloadFile : downloadFile,
+    // delete from S3 (maybe)
   };

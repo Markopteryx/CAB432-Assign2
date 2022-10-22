@@ -16,7 +16,8 @@ const sequelize = new Sequelize(DB_DATABASE, DB_USERNAME, DB_PASSWORD, {
       user: DB_USERNAME,
       password: DB_PASSWORD,
       database: DB_DATABASE
-    }
+    },
+    logging:false
 })
 
 var frame_ = Frame(sequelize)
