@@ -1,9 +1,28 @@
 const express = require("express")
 //const { Transfer } = require('./transfer')
 require('dotenv').config();
+const cors = require('cors')
+const multer = require('multer')
 
 const app = express();
 const port = 8000;
+
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+	  cb(null, 'uploadBlends/')
+	},
+	filename: (req, file, cb) => {
+	  cb(null, file.originalname)
+	},
+  })
+
+const upload = multer({ storage: storage })
+
+app.use(cors())
+
+app.post('/uploadBlends', upload.single('file'), function (req, res) {
+  res.json({})
+})
 
 var env_test = process.env.TEST || 'FALSE'
 app.get("/health", (req, res) => {
@@ -30,14 +49,6 @@ app.get("/health", (req, res) => {
 		</tbody>
 		</table>`);
 })
-
-app.get('/status/:id', (req, res) => {
-	res.send(`The status of ${req.params.id} is completed`)
-})
-
-app.get('/express_backend', (req, res) => { //Line 9
-	res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' }); //Line 10
-});
 
 app.listen(port, () => {
 	console.log(`Example app listening on container port: ${port}`);

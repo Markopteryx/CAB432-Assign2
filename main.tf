@@ -137,7 +137,3 @@ resource "aws_autoscaling_group" "bar" {
     "subnet-04ca053dcbe5f49cc"
   ]
 }
-
-output "rendered" {
-  value = "${data.template_file.backend.rendered}"
-}

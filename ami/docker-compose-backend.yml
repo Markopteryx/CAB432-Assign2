@@ -1,20 +1,20 @@
-version: "3"
+version: '3'
 
 services:
   backend:
-    image: "ghcr.io/markopteryx/cab432-n8039062-backend:main"
+    image: ghcr.io/markopteryx/cab432-n8039062-backend:main
     container_name: backend
     restart: always
     ports:
-      - "8000:8000"
+      - 8000:8000
     env_file:
       - /home/ubuntu/app/.env
 
   frontend:
-    image: "ghcr.io/markopteryx/cab432-n8039062-frontend:main"
+    image: ghcr.io/markopteryx/cab432-n8039062-frontend:main
     container_name: frontend
     ports:
-      - "3000:3000"
+      - 3000:3000
     stdin_open: true
     env_file:
       - /home/ubuntu/app/.env
