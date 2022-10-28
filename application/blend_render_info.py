@@ -116,7 +116,7 @@ def _read_blend_rend_chunk_from_file(blendfile, filepath):
             # It's possible old blend files are not UTF8 compliant, use `surrogateescape`.
             scene_name = scene_name.decode("utf8", errors='surrogateescape')
 
-            scenes.append((start_frame, end_frame, scene_name))
+            scenes.append((end_frame))
 
         if sizeof_data_left > 0:
             blendfile.seek(sizeof_data_left, SEEK_CUR)
@@ -138,8 +138,8 @@ def main():
 
     for filepath in sys.argv[1:]:
         for value in read_blend_rend_chunk(filepath):
-            print("%d %d %s" % value)
-
+            print("%d" % value)
+            sys.stdout.flush()
 
 if __name__ == '__main__':
     main()

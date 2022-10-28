@@ -15,16 +15,16 @@ var db_status;
 
 try {
 	db.authenticate()
-	var db_status = "authenticated"
-    console.log(db_status)
+	var db_status = "Authenticated"
+    console.log(`Database >> ${db_status}`)
 } catch(error) {
 	console.log(error, error.message)
 }
 
 try {
 	db.sync(force=true)
-	var db_status = "synced"
-    console.log(db_status)
+	var db_status = "Synced"
+    console.log(`Database >> ${db_status}`)
 } catch(error) {
 	console.log(error, error.message)
 }
@@ -123,7 +123,7 @@ async function uploadBinaryToRedis(filePath) {
         3600,
         fs.readFileSync(filePath)
     )
-    console.log(`Successfully uploaded ${filePath} to Redis`); 
+    console.log(`Redis (Buffer) >> Successfully uploaded ${filePath}`); 
 }
 
 // Pull from Buffer Redis
@@ -140,7 +140,7 @@ async function uploadJSONToRedis(key, body) {
         3600,
         JSON.stringify({...body})
     )
-    console.log(`Successfully uploaded ${key} to String Redis`); 
+    console.log(`Redis (String) >> Successfully uploaded ${key}`); 
         } catch (error) {
             console.log(error, error.message)
         }
@@ -160,8 +160,7 @@ async function uploadFileToS3(filePath) {
     const fileContent = fs.readFileSync(filePath);
     const objectParams = { Bucket: bucketName, Key: filePath, Body: fileContent};        
     await S3.putObject(objectParams).promise();  
-    console.log(`Successfully uploaded data to ${bucketName}/${filePath}`); 
-    return `s3://${bucketName}/${filePath}`
+    console.log(`S3 >> Successfully uploaded to s3://${bucketName}/${filePath}`); 
 }
 
 // Get from S3
@@ -277,6 +276,7 @@ async function createRender(ID, bucketURL, totalFrames) {
         blendFile: bucketURL,
         totalFrames: totalFrames
     })
+    console.log('Database >> Successfully Uploaded')
     uploadJSONToRedis(render.dataValues.renderID, render.dataValues)
 }
 

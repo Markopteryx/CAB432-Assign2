@@ -8,6 +8,7 @@ const multer = require('multer')
 
 const express = require("express")
 const { v4: uuidv4 } = require('uuid');
+const execSync = require("child_process").execSync;
 
 const { uploadFile, createFrame, createRender } = require('./transfer')
 
@@ -62,15 +63,15 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 		 if ( err ) console.log('ERROR: ' + err);
 	})
 	// Upload to S3
-	var URL = uploadFile(filePath)
+	uploadFile(filePath)
 	// Plan SQS
 
-
 	// Update RDS
-
-
-
-	createFrame, createRender
+	var totalFrames = parseInt(execSync(`python3.9 ./blend_render_info.py ${filePath}`).toString("utf8"));
+	createRender(uuid, filePath, totalFrames)
+	for(var i=1; i <= totalFrames; i++) {
+		createFrame(`${uuid}_${i.toString()}`, uuid, i)
+	}
 
 	// Send SQS
 	// ...
@@ -108,5 +109,5 @@ app.get("/health", (req, res) => {
 })
 
 app.listen(port, () => {
-	console.log(`Example app listening on container port: ${port}`);
+	console.log(`Backend >> Listening on container port: ${port}`);
 })
