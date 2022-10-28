@@ -22,6 +22,7 @@ module.exports = (sequelize) => {
     },
     frame: {
       type: DataTypes.INTEGER,
+      allowNull: false
     }
   }, {
     // Other model options go here

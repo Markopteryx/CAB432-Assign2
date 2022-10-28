@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
   Render.init({
     // Model attributes are defined here
     renderID: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       primaryKey: true
     },
     blendFile: {
@@ -18,7 +18,8 @@ module.exports = (sequelize) => {
       defaultValue: false
     },
     renderType: {
-      type: DataTypes.ENUM("Image", "Video")
+      type: DataTypes.ENUM("Image", "Video"),
+      defaultValue: "Video"
     },
     framesCompleted: {
       type: DataTypes.INTEGER,

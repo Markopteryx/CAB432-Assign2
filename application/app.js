@@ -1,16 +1,20 @@
 require('dotenv').config();
-const express = require("express")
-const { v4: uuidv4 } = require('uuid');
-const { uploadFile, downloadFile } = require('./transfer')
-const cors = require('cors')
-const multer = require('multer')
+
 const fs = require('fs')
 const path = require('path');
+
+const cors = require('cors')
+const multer = require('multer')
+
+const express = require("express")
+const { v4: uuidv4 } = require('uuid');
+
+const { uploadFile, createFrame, createRender } = require('./transfer')
 
 const app = express();
 const port = 8000;
 
-// Create Directories
+// Create Directories for blends
 var dir = './blends';
 if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
@@ -20,6 +24,7 @@ if (!fs.existsSync(dir2)){
     fs.mkdirSync(dir2);
 }
 
+// Store result to directory
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
 	  cb(null, 'uploadBlends/')
@@ -57,11 +62,16 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 		 if ( err ) console.log('ERROR: ' + err);
 	})
 	// Upload to S3
-	uploadFile(filePath)
+	var URL = uploadFile(filePath)
 	// Plan SQS
-	// ...
+
+
 	// Update RDS
-	// ...
+
+
+
+	createFrame, createRender
+
 	// Send SQS
 	// ...
 	// Delete Local Blend

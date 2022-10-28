@@ -4,6 +4,7 @@
     "dev": "nodemon app.js"
   },
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.198.0",
     "aws-sdk": "^2.1238.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
