@@ -10,7 +10,7 @@ const express = require("express")
 const { v4: uuidv4 } = require('uuid');
 const execSync = require("child_process").execSync;
 
-const { uploadFile, createFrame, createRender } = require('./transfer')
+const { uploadFile, createFrame, createRender, sendSQSMessage } = require('./transfer')
 
 const app = express();
 const port = 8000;
@@ -56,6 +56,12 @@ const upload = multer({
 
 app.use(cors())
 
+app.get('/sendMsg', (req, res) => {
+	sendSQSMessage("1223", "323", 2, "ddfdffd")
+
+	res.send("<p> Sent message </p>")
+})
+
 app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 	var uuid = uuidv4()
 	var filePath = "blends/" + uuid + ".blend"
@@ -63,8 +69,10 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 		 if ( err ) console.log('ERROR: ' + err);
 	})
 	// Upload to S3
-	uploadFile(filePath)
+	var filePromise = uploadFile(filePath)
+
 	// Plan SQS
+	// ...
 
 	// Update RDS
 	var totalFrames = parseInt(execSync(`python3.9 ./blend_render_info.py ${filePath}`).toString("utf8"));
@@ -75,8 +83,16 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 
 	// Send SQS
 	// ...
+
 	// Delete Local Blend
-	// ...
+	(async () => {	
+		await filePromise
+		fs.unlink(filePath, (error) => {
+			if (error) {console.log(error, error.message)}
+		})
+		console.log("Cleaned up .blend file")
+	})();
+
 	// Send RDS State to FrontEnd
 	// ...
 	res.json({renderID: uuid})

@@ -2,13 +2,16 @@ require('dotenv').config();
 
 const fs = require('fs')
 
-const redis = require('redis');  
+const redis = require('redis'); 
 const AWS = require('aws-sdk')
 
 const db = require('./database/database');
-const { SQSClient, SendMessageCommand } = require("@aws-sdk/client-sqs");
+
+AWS.config.update({regions : 'ap-southeast-2'})
 
 var redisHost = process.env.REDIS_HOST || 'redis-server'
+
+var sqs = new AWS.SQS({region:'ap-southeast-2'});
 
 // Create and Test Database
 var db_status;
@@ -28,9 +31,6 @@ try {
 } catch(error) {
 	console.log(error, error.message)
 }
-
-// Create SQS Client
-const sqsClient = new SQSClient({region : 'ap-southeast-2'})
 
 // Create Redis Buffer Client
 const redisBufferClient = redis.createClient({
@@ -66,9 +66,7 @@ const redisStringClient = redis.createClient({
 })();
 
 // Create S3 
-AWS.config.update({regions : 'ap-southeast-2'})
 const bucketName = 'cab432-markouksanovic';
-
 const S3 = new AWS.S3()
 
 var bucketParams = {
@@ -173,24 +171,6 @@ async function getFileFromS3(key) {
     return S3Result;
 }
 
-// Add Message to SQS
-async function sendToQueue(renderID, frameID, frameNo) {
-    try {
-        const params = {
-            MessageBody: {
-                'renderID' : renderID, 
-                'frameID' : frameID,
-                'frameNo' : frameNo
-            },
-            QueueUrl: "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n8039062-Assign2-SQS"
-          };
-        const data = await sqsClient.send(new SendMessageCommand(params))
-        console.log("Success, message sent. MessageID:", data.MessageId)
-    } catch (error) {
-        console.log("Didn't add message to queue")
-    }
-}
-
 async function getRenderRDS(renderID) {
     try{
         var newRender = await db.models.Render.findOne({ where: { renderID: renderID}});
@@ -280,6 +260,48 @@ async function createRender(ID, bucketURL, totalFrames) {
     uploadJSONToRedis(render.dataValues.renderID, render.dataValues)
 }
 
+// Add Message to SQS
+async function sendSQSMessage(renderID, frameID, frameNo, blendFile) {
+    var messageString = JSON.stringify(
+        {
+            frameID : frameID,
+            renderID : renderID, 
+            frameNo : frameNo,
+            blendFile : blendFile
+        })
+    try {
+        const params = {
+            QueueUrl: "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n8039062-Assign2-SQS",
+            MessageBody: messageString
+        }
+        var queueResult = await sqs.sendMessage(params).promise();
+    } catch (error) {
+        console.log("Didn't add message to queue", error, error.message)
+    }
+}
+
+async function getSQSMessage() {
+    try{
+        const params = {
+            QueueUrl : "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n8039062-Assign2-SQS"
+        }
+        var getMessage = await sqs.receiveMessage(params).promise();
+        if (!getMessage.Messages) {
+            return null
+        }
+        //console.log(getMessage.Messages[0]['Body'])
+        var messageBody = JSON.parse(getMessage.Messages[0]['Body'])
+        
+        return {
+            frameID : messageBody.frameID, 
+            renderID : messageBody.renderID,
+            frameNo : messageBody.frameNo, 
+            blendFile : messageBody.blendFile}
+    } catch (error) {
+        console.log("Count not find message", error, error.message)
+    }
+};
+
 module.exports = {
     uploadFile : uploadFile,
     downloadFile : downloadFile,
@@ -288,6 +310,8 @@ module.exports = {
     getFrame : getFrame,
     createRender : createRender,
     updateRender : updateRender,
-    getRender : getRender
+    getRender : getRender,
+    sendSQSMessage : sendSQSMessage,
+    getSQSMessage : getSQSMessage
     // delete from S3 (maybe)
   };

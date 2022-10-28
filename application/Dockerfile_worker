@@ -14,4 +14,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["node", "./worker.js"]
+CMD ["npm", "run", "worker"]

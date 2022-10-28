@@ -1,7 +1,8 @@
 {
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "worker": "nodemon worker.js"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.198.0",
