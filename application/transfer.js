@@ -3,6 +3,8 @@ require('dotenv').config();
 const fs = require('fs')
 
 const redis = require('redis'); 
+const commandOptions = require('redis').commandOptions
+
 const AWS = require('aws-sdk')
 
 const db = require('./database/database');
@@ -106,7 +108,7 @@ async function downloadFile(filePath) {
 
     var result = await getFileFromS3(filePath)
     if(result) {
-        fs.writeFileSync(filePath, result)
+        fs.writeFileSync(filePath, result['Body'])
         uploadBinaryToRedis(filePath)
         return 
     } 
@@ -116,17 +118,17 @@ async function downloadFile(filePath) {
 
 // Upload to Buffer Redis
 async function uploadBinaryToRedis(filePath) {
+    var data = fs.readFileSync(filePath)
     redisBufferClient.set(
         filePath,
-        3600,
-        fs.readFileSync(filePath)
+        data
     )
     console.log(`Redis (Buffer) >> Successfully uploaded ${filePath}`); 
 }
 
 // Pull from Buffer Redis
 async function getBinaryFromRedis(filePath) {
-    data = await redisBufferClient.get(filePath)
+    data = await redisBufferClient.get(commandOptions({ returnBuffers: true }),filePath)
     return data
 }
 
@@ -135,7 +137,6 @@ async function uploadJSONToRedis(key, body) {
     try {    
         redisStringClient.set(
         key,
-        3600,
         JSON.stringify({...body})
     )
     console.log(`Redis (String) >> Successfully uploaded ${key}`); 
@@ -189,24 +190,6 @@ async function getFrameRDS(frameID) {
     }
 }
 
-async function getRenderRedis(renderID) {
-    try{
-        var render = await getJSONFromRedis(renderID)
-        return render
-    } catch (error) {
-        console.log(error, error.message)
-    }
-}
-
-async function getFrameRedis(frameID) {
-    try{
-        var frame = await getJSONFromRedis(frameID)
-        return frame
-    } catch (error) {
-        console.log(error, error.message)
-    }
-}
-
 async function getRender(renderID) {
     var result = await getJSONFromRedis(renderID)
 
@@ -240,6 +223,7 @@ async function createFrame(frameID, renderID, frameNo){
         renderID: renderID,
         frame: frameNo
     })
+    console.log('Database >> Frame Successfully Uploaded')
     uploadJSONToRedis(frame.dataValues.frameID, frame.dataValues)
 }
 
@@ -256,7 +240,7 @@ async function createRender(ID, bucketURL, totalFrames) {
         blendFile: bucketURL,
         totalFrames: totalFrames
     })
-    console.log('Database >> Successfully Uploaded')
+    console.log('Database >> Render Successfully Uploaded')
     uploadJSONToRedis(render.dataValues.renderID, render.dataValues)
 }
 
@@ -283,7 +267,8 @@ async function sendSQSMessage(renderID, frameID, frameNo, blendFile) {
 async function getSQSMessage() {
     try{
         const params = {
-            QueueUrl : "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n8039062-Assign2-SQS"
+            QueueUrl : "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n8039062-Assign2-SQS",
+            VisibilityTimeout: 120
         }
         var getMessage = await sqs.receiveMessage(params).promise();
         if (!getMessage.Messages) {
@@ -291,16 +276,30 @@ async function getSQSMessage() {
         }
         //console.log(getMessage.Messages[0]['Body'])
         var messageBody = JSON.parse(getMessage.Messages[0]['Body'])
+        var handle = getMessage.Messages[0]['ReceiptHandle']
         
         return {
             frameID : messageBody.frameID, 
             renderID : messageBody.renderID,
             frameNo : messageBody.frameNo, 
-            blendFile : messageBody.blendFile}
+            blendFile : messageBody.blendFile,
+            handle : handle}
     } catch (error) {
         console.log("Count not find message", error, error.message)
     }
-};
+}; 
+
+async function extendFrameVisibility(handle, duration) {
+    var params = {
+        QueueUrl : "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n8039062-Assign2-SQS",
+        ReceiptHandle: handle,
+        VisibilityTimeout: duration
+    }
+    sqs.changeMessageVisibility(params, function(err, data) {
+        if (err) console.log(err, err.stack);   
+        else console.log(`Extended message visibility by ${duration} seconds`)        
+      });
+}
 
 module.exports = {
     uploadFile : uploadFile,
@@ -312,6 +311,7 @@ module.exports = {
     updateRender : updateRender,
     getRender : getRender,
     sendSQSMessage : sendSQSMessage,
-    getSQSMessage : getSQSMessage
+    getSQSMessage : getSQSMessage,
+    extendFrameVisibility : extendFrameVisibility
     // delete from S3 (maybe)
   };

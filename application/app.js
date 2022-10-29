@@ -54,6 +54,12 @@ const upload = multer({
 		checkFileType(file, cb)
 }})
 
+async function createTask(i, uuid, filePath) {
+	var frameID = `${uuid}_${i.toString()}`
+	await createFrame(frameID, uuid, i)
+	sendSQSMessage(uuid, frameID, i, filePath)
+}
+
 app.use(cors())
 
 app.get('/sendMsg', (req, res) => {
@@ -68,17 +74,20 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 	await fs.rename("./" + req.file.path, filePath , function(err) {
 		 if ( err ) console.log('ERROR: ' + err);
 	})
+
+	// Update RDS
+	var totalFrames = parseInt(execSync(`python3.9 ./blend_render_info.py ${filePath}`).toString("utf8"));
+
+	createRender(uuid, filePath, totalFrames)
 	// Upload to S3
-	var filePromise = uploadFile(filePath)
+	var filePromise = await uploadFile(filePath)
 
 	// Plan SQS
 	// ...
 
 	// Update RDS
-	var totalFrames = parseInt(execSync(`python3.9 ./blend_render_info.py ${filePath}`).toString("utf8"));
-	createRender(uuid, filePath, totalFrames)
 	for(var i=1; i <= totalFrames; i++) {
-		createFrame(`${uuid}_${i.toString()}`, uuid, i)
+		createTask(i, uuid, filePath)
 	}
 
 	// Send SQS
