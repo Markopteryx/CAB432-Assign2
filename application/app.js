@@ -82,27 +82,20 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 	// Upload to S3
 	var filePromise = await uploadFile(filePath)
 
-	// Plan SQS
-	// ...
-
 	// Update RDS
 	for(var i=1; i <= totalFrames; i++) {
 		createTask(i, uuid, filePath)
 	}
 
-	// Send SQS
-	// ...
-
 	// Delete Local Blend
 	(async () => {	
-		await filePromise
 		fs.unlink(filePath, (error) => {
 			if (error) {console.log(error, error.message)}
 		})
 		console.log("Cleaned up .blend file")
 	})();
 
-	// Send RDS State to FrontEnd
+	// Send RDS State to Frontend
 	// ...
 	res.json({renderID: uuid})
 })

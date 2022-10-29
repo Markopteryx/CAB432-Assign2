@@ -211,10 +211,11 @@ async function getFrame(frameID) {
 }
 
 async function updateFrame(frameID, updateData) {
-    var newFrame = await db.models.Render.findOne({ where: { frameID: frameID}});
+    var newFrame = await db.models.Frame.findOne({ where: { frameID: frameID}});
     newFrame.set(updateData);
     newFrame.save()
     uploadJSONToRedis(frameID, newFrame.dataValues)
+    return newFrame
 }
 
 async function createFrame(frameID, renderID, frameNo){
@@ -232,6 +233,7 @@ async function updateRender(renderID, updateData) {
     newRender.set(updateData);
     newRender.save()
     uploadJSONToRedis(renderID, newRender.dataValues)
+    return newRender
 }
 
 async function createRender(ID, bucketURL, totalFrames) {
@@ -242,6 +244,14 @@ async function createRender(ID, bucketURL, totalFrames) {
     })
     console.log('Database >> Render Successfully Uploaded')
     uploadJSONToRedis(render.dataValues.renderID, render.dataValues)
+}
+
+async function incrementRender(renderID){
+    var newRender = await db.models.Render.findOne({ where: { renderID: renderID}});
+    newRender['framesCompleted'] = newRender['framesCompleted'] + 1
+    await newRender.save()
+    uploadJSONToRedis(renderID, newRender.dataValues)
+    return newRender
 }
 
 // Add Message to SQS
@@ -274,7 +284,6 @@ async function getSQSMessage() {
         if (!getMessage.Messages) {
             return null
         }
-        //console.log(getMessage.Messages[0]['Body'])
         var messageBody = JSON.parse(getMessage.Messages[0]['Body'])
         var handle = getMessage.Messages[0]['ReceiptHandle']
         
@@ -296,9 +305,22 @@ async function extendFrameVisibility(handle, duration) {
         VisibilityTimeout: duration
     }
     sqs.changeMessageVisibility(params, function(err, data) {
-        if (err) console.log(err, err.stack);   
-        else console.log(`Extended message visibility by ${duration} seconds`)        
+        if (err) return null; 
       });
+}
+
+async function deleteSQSMessage(handle) {
+    var deleteParams = {
+        QueueUrl: "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n8039062-Assign2-SQS",
+        ReceiptHandle: handle
+      };
+      var removedMessage = await sqs.deleteMessage(deleteParams).promise();
+      console.log("Worker >> Finished Frame")
+}
+
+async function getAllFrames(renderID) {
+    var Frames = await db.models.Frame.findAll({ where: { renderID: renderID}});
+    return Frames
 }
 
 module.exports = {
@@ -312,6 +334,8 @@ module.exports = {
     getRender : getRender,
     sendSQSMessage : sendSQSMessage,
     getSQSMessage : getSQSMessage,
-    extendFrameVisibility : extendFrameVisibility
-    // delete from S3 (maybe)
+    extendFrameVisibility : extendFrameVisibility,
+    deleteSQSMessage : deleteSQSMessage,
+    incrementRender : incrementRender,
+    getAllFrames : getAllFrames
   };
