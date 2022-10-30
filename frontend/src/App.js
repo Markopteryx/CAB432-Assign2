@@ -1,5 +1,9 @@
 import './App.css';
 import { useState } from 'react'
+import dotenv  from "dotenv"
+dotenv.config()
+
+const API_URL = process.env.API_URL || 'localhost'
 
 function App() {
 
@@ -10,7 +14,7 @@ function App() {
     e.preventDefault()
     let formData = new FormData()
     formData.append('file', blendFile.data)
-    const response = await fetch('http://localhost:8000/uploadBlends', {
+    const response = await fetch(`http://${API_URL}:8000/uploadBlends`, {
       method: 'POST',
       body: formData,
     })
