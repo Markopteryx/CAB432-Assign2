@@ -6,13 +6,11 @@ const redis = require('redis');
 const commandOptions = require('redis').commandOptions
 
 const AWS = require('aws-sdk')
-
 const db = require('./database/database');
 
 AWS.config.update({regions : 'ap-southeast-2'})
 
 var redisHost = process.env.REDIS_HOST || 'redis-server'
-
 var sqs = new AWS.SQS({region:'ap-southeast-2'});
 
 // Create and Test Database
@@ -27,7 +25,7 @@ try {
 }
 
 try {
-	db.sync(force=true)
+	db.sync()
 	var db_status = "Synced"
     console.log(`Database >> ${db_status}`)
 } catch(error) {
@@ -110,7 +108,7 @@ async function downloadFile(filePath) {
     if(result) {
         fs.writeFileSync(filePath, result['Body'])
         uploadBinaryToRedis(filePath)
-        return 
+        return result
     } 
 
     throw new Error("File not found in Redis or S3 :(")
@@ -147,8 +145,8 @@ async function uploadJSONToRedis(key, body) {
 
 // Pull from String Redis
 async function getJSONFromRedis(key) {
-    data = await redisStringClient.get(key)
-    if (result) {
+    var data = await redisStringClient.get(key)
+    if (data) {
         const resultJSON =  JSON.parse(data); 
         return resultJSON
     }

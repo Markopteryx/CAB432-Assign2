@@ -10,7 +10,7 @@ const express = require("express")
 const { v4: uuidv4 } = require('uuid');
 const execSync = require("child_process").execSync;
 
-const { uploadFile, createFrame, createRender, sendSQSMessage } = require('./transfer')
+const { uploadFile, createFrame, createRender, sendSQSMessage, getRender } = require('./transfer')
 
 const app = express();
 const port = 8000;
@@ -62,12 +62,6 @@ async function createTask(i, uuid, filePath) {
 
 app.use(cors())
 
-app.get('/sendMsg', (req, res) => {
-	sendSQSMessage("1223", "323", 2, "ddfdffd")
-
-	res.send("<p> Sent message </p>")
-})
-
 app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 	var uuid = uuidv4()
 	var filePath = "blends/" + uuid + ".blend"
@@ -98,6 +92,16 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 	// Send RDS State to Frontend
 	// ...
 	res.json({renderID: uuid})
+})
+
+// Check Render Status
+app.get("/render/:id", async (req, res) => {
+	var render = await getRender(req.params.id);
+	if (!render) {
+		res.status(404).send("ID Not Found")
+		return
+	}
+	res.send(render)
 })
 
 var env_test = process.env.TEST || 'FALSE'

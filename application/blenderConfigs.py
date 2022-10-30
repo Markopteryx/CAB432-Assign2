@@ -13,6 +13,8 @@ for scene in bpy.data.scenes:
 
     scene.render.resolution_x = scale * scene.render.resolution_x
     scene.render.resolution_y = scale * scene.render.resolution_y
-    scene.render.tile_x = 2048
-    scene.render.tile_y = 2048
+    #scene.render.tile_x = 2048
+    #scene.render.tile_y = 2048
     scene.render.image_settings.file_format = 'PNG'
+
+    print(f"""FPS_{scene.render.fps}_""")

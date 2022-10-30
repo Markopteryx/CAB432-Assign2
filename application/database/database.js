@@ -23,13 +23,4 @@ const sequelize = new Sequelize(DB_DATABASE, DB_USERNAME, DB_PASSWORD, {
 var frame_ = Frame(sequelize)
 var render_ = Render(sequelize)
 
-/*
-sequelize.sync().then(
-  () => {frame_.belongsTo(render_, {as: 'parentRender', foreignKey: {allowNull: false, name: 'renderID'}});
-  render_.hasMany(frame_, {as: 'frameList', foreignKey: {allowNull: false, name: 'renderID'}});
-
-  sequelize.sync()
-});
-*/
-
 module.exports = sequelize

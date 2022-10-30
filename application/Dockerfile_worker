@@ -41,8 +41,6 @@ RUN mkdir /blender && \
         /var/lib/apt/lists/* \
         /var/tmp/*
 
-RUN apt install ffmpeg libavdevice58=7:4.1.6-1~deb10u1
-
 COPY package*.json ./
 
 RUN npm install
