@@ -15,41 +15,59 @@ provider "aws" {
 }
 
 // Randomly name resources
-resource "random_id" "name" {
+resource "random_id" "backend-random" {
   keepers = {
     first = "${timestamp()}"
   }
 
-  prefix = "n8039062-TF-"
+  prefix = "n8039062-backend-"
+  byte_length = 6
+}
+
+// Randomly name resources
+resource "random_id" "worker-random" {
+  keepers = {
+    first = "${timestamp()}"
+  }
+
+  prefix = "n8039062-worker-"
   byte_length = 6
 }
 
 // Backend Launch Config
 resource "aws_launch_configuration" "n8039062-backend" {
-  name                 = random_id.name.hex
+  name                 = random_id.backend-random.hex
   key_name             = "marko-assign1"
   iam_instance_profile = "ec2SSMCab432"
   image_id             = "ami-066a35fb8bb4d12eb"
-  instance_type        = "t2.micro"
+  instance_type        = "t2.small"
+  ebs_block_device {
+    volume_type = "gp2"
+    volume_size = 20
+  }
   security_groups      = ["sg-032bd1ff8cf77dbb9"]
   user_data            = data.template_file.backend.rendered
 }
 
 // Worker Launch Config
 resource "aws_launch_configuration" "n8039062-worker" {
-  name                 = random_id.name.hex
+  name                 = random_id.worker-random.hex
   key_name             = "marko-assign1"
   iam_instance_profile = "ec2SSMCab432"
   image_id             = "ami-066a35fb8bb4d12eb"
-  instance_type        = "t2.micro"
+  instance_type        = "t2.small"
+  ebs_block_device {
+    volume_type = "gp2"
+    volume_size = 20
+  }
   security_groups      = ["sg-032bd1ff8cf77dbb9"]
   user_data            = data.template_file.worker.rendered
 }
 
 // Worker Autoscaling Group
 resource "aws_autoscaling_group" "n8039062-worker-ASG" {
-  name                 = "${aws_launch_configuration.n8039062-backend.name}"
-  launch_configuration = aws_launch_configuration.n8039062-backend.name
+  name                 = "${aws_launch_configuration.n8039062-worker.name}"
+  launch_configuration = aws_launch_configuration.n8039062-worker.name
   min_size             = 1
   max_size             = 3
   lifecycle {
@@ -204,6 +222,8 @@ data "template_file" "backend" {
     DB_USERNAME = var.DB_USERNAME
     DB_PASSWORD = var.DB_PASSWORD
     REDIS_HOST = var.REDIS_ENDPOINT
+    CONTAINER_1 = "ghcr.io/markopteryx/cab432-n8039062-backend:main"
+    CONTAINER_2 = "ghcr.io/markopteryx/cab432-n8039062-frontend:main"
     API_URL = aws_lb.n8039062-loadbalancer.dns_name
     COMPOSE = file("${path.module}/ami/docker-compose-backend.yml")
   }
@@ -222,6 +242,8 @@ data "template_file" "worker" {
     DB_USERNAME = var.DB_USERNAME
     DB_PASSWORD = var.DB_PASSWORD
     REDIS_HOST = var.REDIS_ENDPOINT
+    CONTAINER_1 = "ghcr.io/markopteryx/cab432-n8039062-worker:main"
+    CONTAINER_2 = "ghcr.io/markopteryx/cab432-n8039062-worker:main"
     API_URL = aws_lb.n8039062-loadbalancer.dns_name
     COMPOSE = file("${path.module}/ami/docker-compose-worker.yml")
   }

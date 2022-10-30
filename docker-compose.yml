@@ -17,7 +17,7 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_DATABASE=Renders
+      - MYSQL_DATABASE=renders
     env_file:
       - .env
     volumes:
