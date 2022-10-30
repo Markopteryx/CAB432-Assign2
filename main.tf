@@ -39,12 +39,8 @@ resource "aws_launch_configuration" "n8039062-backend" {
   name                 = random_id.backend-random.hex
   key_name             = "marko-assign1"
   iam_instance_profile = "ec2SSMCab432"
-  image_id             = "ami-066a35fb8bb4d12eb"
+  image_id             = "ami-02eae4391d6cad044"
   instance_type        = "t2.small"
-  ebs_block_device {
-    volume_type = "gp2"
-    volume_size = 20
-  }
   security_groups      = ["sg-032bd1ff8cf77dbb9"]
   user_data            = data.template_file.backend.rendered
 }
@@ -54,12 +50,8 @@ resource "aws_launch_configuration" "n8039062-worker" {
   name                 = random_id.worker-random.hex
   key_name             = "marko-assign1"
   iam_instance_profile = "ec2SSMCab432"
-  image_id             = "ami-066a35fb8bb4d12eb"
+  image_id             = "ami-02eae4391d6cad044"
   instance_type        = "t2.small"
-  ebs_block_device {
-    volume_type = "gp2"
-    volume_size = 20
-  }
   security_groups      = ["sg-032bd1ff8cf77dbb9"]
   user_data            = data.template_file.worker.rendered
 }

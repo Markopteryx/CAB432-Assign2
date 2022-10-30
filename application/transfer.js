@@ -11,7 +11,6 @@ const db = require('./database/database');
 AWS.config.update({regions : 'ap-southeast-2'})
 
 var redisHost = process.env.REDIS_HOST || 'redis-server'
-var sqs = new AWS.SQS({region:'ap-southeast-2'});
 
 // Create and Test Database
 var db_status;
@@ -66,6 +65,8 @@ const redisStringClient = redis.createClient({
 })();
 
 // Create S3 
+var sqs = new AWS.SQS({region:'ap-southeast-2'});
+
 const bucketName = 'cab432-markouksanovic';
 const S3 = new AWS.S3()
 
