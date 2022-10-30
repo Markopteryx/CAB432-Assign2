@@ -33,7 +33,6 @@ resource "aws_launch_configuration" "n8039062-backend" {
   instance_type        = "t2.micro"
   security_groups      = ["sg-032bd1ff8cf77dbb9"]
   user_data            = data.template_file.backend.rendered
-  tags                 = { qut-username = "n8039062"}
 }
 
 // Worker Launch Config
@@ -45,7 +44,6 @@ resource "aws_launch_configuration" "n8039062-worker" {
   instance_type        = "t2.micro"
   security_groups      = ["sg-032bd1ff8cf77dbb9"]
   user_data            = data.template_file.worker.rendered
-  tags                 = { qut-username = "n8039062"}
 }
 
 // Worker Autoscaling Group
@@ -62,7 +60,6 @@ resource "aws_autoscaling_group" "n8039062-worker-ASG" {
     "subnet-075811427d5564cf9",
     "subnet-04ca053dcbe5f49cc"
   ]
-  tags                 = { qut-username = "n8039062"}
 }
 
 // Worker Autoscaling Group Policy
@@ -80,7 +77,6 @@ resource "aws_autoscaling_policy" "n8039062-worker-ASG-policy" {
 
     target_value = 50.0
   }
-  tags = { qut-username = "n8039062"}
 }
 
 // Backend Autoscaling Group
@@ -102,14 +98,12 @@ resource "aws_autoscaling_group" "n8039062-backend-ASG" {
     "subnet-075811427d5564cf9",
     "subnet-04ca053dcbe5f49cc"
   ]
-  tags                 = { qut-username = "n8039062"}
 }
 
 // Backend Autoscaling Group Attachment
 resource "aws_autoscaling_attachment" "n8039062-backend-ASG-attachment" {
   autoscaling_group_name  = aws_autoscaling_group.n8039062-backend-ASG.id
   lb_target_group_arn    = aws_lb_target_group.n8039062-backend-target-group.arn
-  tags = { qut-username = "n8039062"}
 }
 
 // Backend Autoscaling Group Policy
@@ -127,7 +121,6 @@ resource "aws_autoscaling_policy" "n8039062-backend-ASG-policy" {
 
     target_value = 50.0
   }
-  tags = { qut-username = "n8039062"}
 }
 
 // Backend Target Group

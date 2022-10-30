@@ -12,6 +12,7 @@ echo "DB_PASSWORD=${DB_PASSWORD}" >> /home/ubuntu/app/.env
 
 echo "REDIS_HOST=${REDIS_HOST}" >> /home/ubuntu/app/.env
 echo "API_URL=${API_URL}" >> /home/ubuntu/app/.env
+echo "REACT_APP_API_URL=${API_URL}" >> /home/ubuntu/app/.env
 
 echo "${COMPOSE}" > /home/ubuntu/app/docker-compose.yml
 
