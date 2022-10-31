@@ -151,7 +151,7 @@ resource "aws_lb_target_group" "n8039062-backend-target-group" {
 // Frontend Target Group
 resource "aws_lb_target_group" "n8039062-frontend-target-group" {
   name     = "n8039062-frontend-target-group"
-  port     = 3000
+  port     = 80
   protocol = "HTTP"
   vpc_id   = "vpc-007bab53289655834"
   tags = { qut-username = "n8039062"}
@@ -165,7 +165,7 @@ resource "aws_lb" "n8039062-loadbalancer" {
   security_groups    = ["sg-032bd1ff8cf77dbb9"]
   subnets            =  ["subnet-05a3b8177138c8b14", "subnet-075811427d5564cf9", "subnet-04ca053dcbe5f49cc"
   ]
-  enable_deletion_protection = false
+  enable_deletion_protection = true
   tags = { qut-username = "n8039062"}
 }
 
@@ -183,7 +183,7 @@ resource "aws_lb_listener" "n8039062-8000-listener" {
 }
 
 // Frontend Forward
-resource "aws_lb_listener" "n8039062-3000-listener" {
+resource "aws_lb_listener" "n8039062-80-listener" {
   load_balancer_arn = aws_lb.n8039062-loadbalancer.arn
   port              = "80"
   protocol          = "HTTP"
@@ -200,6 +200,26 @@ resource "aws_sqs_queue" "n8039062-Assign2-SQS" {
   name = "n8039062-Assign2-SQS"
   tags = { qut-username = "n8039062"}
 }
+
+resource "aws_sqs_queue_policy" "SQS_policy" {
+  queue_url = aws_sqs_queue.n8039062-Assign2-SQS.id
+  policy = data.aws_iam_policy_document.SQS_policy_doc.json
+}
+
+data "aws_iam_policy_document" "SQS_policy_doc" {
+  statement {
+    sid = "_AllActions"
+    effect = "Allow"
+    actions   = ["sqs:*"]
+    resources = ["arn:aws:sqs:ap-southeast-2:901444280953:n8039062-Assign2-SQS"]
+    principals {
+      type = "AWS"
+      identifiers = ["arn:aws:iam::901444280953:role/ec2SSMCab432",
+                     "arn:aws:iam::901444280953:root"]
+    }
+  }
+}
+
 
 // Backend Templete File
 data "template_file" "backend" {

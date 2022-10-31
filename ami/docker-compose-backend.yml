@@ -15,7 +15,7 @@ services:
     container_name: frontend
     restart: always
     ports:
-      - 3000:3000
+      - 80:3000
     stdin_open: true
     env_file:
       - /home/ubuntu/app/.env
