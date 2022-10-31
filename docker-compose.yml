@@ -67,6 +67,8 @@ services:
     stdin_open: true
     volumes:
       - ./frontend:/frontend
+    env_file:
+      - .env
 
   worker:
     depends_on:

@@ -1,7 +1,9 @@
 import './App.css';
 import { useState } from 'react'
 
-const API_URL = process.env.REACT_APP_API_URL || 'localhost'
+const API_URL = process.env.REACT_APP_API_URL
+
+console.log(process.env.REACT_APP_API_URL)
 
 function App() {
 

@@ -8,8 +8,6 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
-
 EXPOSE 80
 
-CMD ["./node_modules/.bin/serve", "-s","build"]
+CMD ["npm", "start"]
