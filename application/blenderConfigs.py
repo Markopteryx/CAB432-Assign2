@@ -5,7 +5,7 @@ for scene in bpy.data.scenes:
     scale = 1
     scene.render.engine = 'CYCLES'
     scene.cycles.use_denoising = True
-    scene.cycles.samples = 32
+    scene.cycles.samples = 16
     if (scene.render.resolution_x > 4096):
         scale = 4096 / scene.render.resolution_x
     if (scene.render.resolution_y > 4096):

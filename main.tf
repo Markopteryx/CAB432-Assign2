@@ -116,6 +116,12 @@ resource "aws_autoscaling_attachment" "n8039062-backend-ASG-attachment" {
   lb_target_group_arn    = aws_lb_target_group.n8039062-backend-target-group.arn
 }
 
+// Frontend Autoscaling Group Attachment
+resource "aws_autoscaling_attachment" "n8039062-frontend-ASG-attachment" {
+  autoscaling_group_name  = aws_autoscaling_group.n8039062-backend-ASG.id
+  lb_target_group_arn    = aws_lb_target_group.n8039062-frontend-target-group.arn
+}
+
 // Backend Autoscaling Group Policy
 resource "aws_autoscaling_policy" "n8039062-backend-ASG-policy" {
   name                   = "n8039062-backend-ASG-policy"
@@ -169,7 +175,7 @@ resource "aws_lb" "n8039062-loadbalancer" {
   tags = { qut-username = "n8039062"}
 }
 
-// Backend Forward
+// Backend Listener
 resource "aws_lb_listener" "n8039062-8000-listener" {
   load_balancer_arn = aws_lb.n8039062-loadbalancer.arn
   port              = "8000"
@@ -182,7 +188,7 @@ resource "aws_lb_listener" "n8039062-8000-listener" {
   tags = { qut-username = "n8039062"}
 }
 
-// Frontend Forward
+// Frontend Listener
 resource "aws_lb_listener" "n8039062-80-listener" {
   load_balancer_arn = aws_lb.n8039062-loadbalancer.arn
   port              = "80"
@@ -201,6 +207,7 @@ resource "aws_sqs_queue" "n8039062-Assign2-SQS" {
   tags = { qut-username = "n8039062"}
 }
 
+// SQS Policy
 resource "aws_sqs_queue_policy" "SQS_policy" {
   queue_url = aws_sqs_queue.n8039062-Assign2-SQS.id
   policy = data.aws_iam_policy_document.SQS_policy_doc.json
