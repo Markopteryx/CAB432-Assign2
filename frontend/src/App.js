@@ -10,13 +10,11 @@ else {
   API_URL = window.env.API_URL
 }
 
-console.log(process.env.REACT_APP_API_URL)
-console.log(window.env.API_URL)
-
 function App() {
 
   const [blendFile, setBlendFile] = useState({ preview: '', data: '' })
   const [status, setStatus] = useState('')
+  
   
   const handleSubmit = async (e) => {
     e.preventDefault()

@@ -174,9 +174,7 @@ async function getRenderRDS(renderID) {
     try{
         var newRender = await db.models.Render.findOne({ where: { renderID: renderID}});
         return newRender.dataValues
-    } catch (error) {
-        console.log(error, error.message)
-    }
+    } catch (error) {}
 }
 
 async function getFrameRDS(frameID) {
@@ -321,6 +319,16 @@ async function getAllFrames(renderID) {
     return Frames
 }
 
+function generatePresignedURL(ID) {
+    var filePath = "outputs/" + ID + ".mp4";
+    const url = S3.getSignedUrl('getObject', {
+        Bucket: bucketName,
+        Key: filePath,
+        Expires: 21600 // 6hrs
+    })
+    return url
+}
+
 module.exports = {
     uploadFile : uploadFile,
     downloadFile : downloadFile,
@@ -335,5 +343,6 @@ module.exports = {
     extendFrameVisibility : extendFrameVisibility,
     deleteSQSMessage : deleteSQSMessage,
     incrementRender : incrementRender,
-    getAllFrames : getAllFrames
+    getAllFrames : getAllFrames,
+    generatePresignedURL : generatePresignedURL
   };

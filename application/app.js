@@ -10,7 +10,12 @@ const express = require("express")
 const { v4: uuidv4 } = require('uuid');
 const execSync = require("child_process").execSync;
 
-const { uploadFile, createFrame, createRender, sendSQSMessage, getRender } = require('./transfer')
+const { uploadFile, 
+		createFrame, 
+		createRender, 
+		sendSQSMessage, 
+		getRender,
+		generatePresignedURL } = require('./transfer')
 
 const app = express();
 const port = 8000;
@@ -102,6 +107,13 @@ app.get("/render/:id", async (req, res) => {
 		return
 	}
 	res.send(render)
+})
+
+// Check URL
+app.get("/preURL/:id", async (req, res) => {
+	var ID = req.params.id;
+	var preSignedURL = {'URL' : generatePresignedURL(ID)}
+	res.send(preSignedURL)
 })
 
 var env_test = process.env.TEST || 'FALSE'

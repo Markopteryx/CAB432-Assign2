@@ -79,6 +79,7 @@ resource "aws_autoscaling_policy" "n8039062-worker-ASG-policy" {
   autoscaling_group_name = aws_autoscaling_group.n8039062-worker-ASG.name
   policy_type            = "TargetTrackingScaling"
   estimated_instance_warmup = 300
+  metrics_granularity = "1Minute"
 
   target_tracking_configuration {
     predefined_metric_specification {
@@ -95,6 +96,7 @@ resource "aws_autoscaling_group" "n8039062-backend-ASG" {
   launch_configuration = aws_launch_configuration.n8039062-backend.name
   min_size             = 1
   max_size             = 2
+  metrics_granularity = "1Minute"
 
   lifecycle {
     create_before_destroy = true
