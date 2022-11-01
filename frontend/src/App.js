@@ -1,9 +1,17 @@
 import './App.css';
 import { useState } from 'react'
 
-const API_URL = process.env.REACT_APP_API_URL
+var API_URL;
+
+if (window.env.API_URL === '_API_URL_') {
+  API_URL = process.env.REACT_APP_API_URL
+}
+else {
+  API_URL = window.env.API_URL
+}
 
 console.log(process.env.REACT_APP_API_URL)
+console.log(window.env.API_URL)
 
 function App() {
 
