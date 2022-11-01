@@ -14,6 +14,6 @@ EXPOSE 80
 
 RUN chmod +x entrypoint.sh
 
-ENTRYPOINT [ "bash", "entrypoint.sh"]
+ENTRYPOINT [ "bash", "-c", "entrypoint.sh"]
 
 CMD ["/frontend/node_modules/.bin/serve", "-s", "build"]
