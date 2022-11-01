@@ -12,8 +12,8 @@ RUN npm run build
 
 EXPOSE 80
 
-RUN chmod +x entrypoint.sh
+RUN chmod +x /frontend/entrypoint.sh
 
-ENTRYPOINT [ "bash", "-c", "entrypoint.sh"]
+ENTRYPOINT ["/frontend/entrypoint.sh"]
 
 CMD ["/frontend/node_modules/.bin/serve", "-s", "build"]
