@@ -76,6 +76,7 @@ function Upload() {
                       max="100" />
         </div>
         <p ref={loadTotalRef}></p>
+        <p ref={statusRef}></p>
         <hr></hr>
         <h4>Example Blend Files</h4>
         <a href="https://cab432-markouksanovic.s3.ap-southeast-2.amazonaws.com/examples/fast_cube.blend" download> Fast Cube </a>
