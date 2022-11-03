@@ -77,7 +77,7 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 	// Update RDS
 	var totalFrames = parseInt(execSync(`python3.9 ./blend_render_info.py ${filePath}`).toString("utf8"));
 
-	createRender(uuid, filePath, totalFrames)
+	var createdRender = createRender(uuid, filePath, totalFrames)
 	// Upload to S3
 	var filePromise = await uploadFile(filePath)
 
@@ -96,6 +96,7 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 
 	// Send RDS State to Frontend
 	// ...
+	await createdRender
 	res.json({renderID: uuid})
 })
 

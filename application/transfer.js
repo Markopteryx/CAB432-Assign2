@@ -208,6 +208,9 @@ async function getFrame(frameID) {
 
 async function updateFrame(frameID, updateData) {
     var newFrame = await db.models.Frame.findOne({ where: { frameID: frameID}});
+    if (!newFrame) {
+        return
+    }
     newFrame.set(updateData);
     newFrame.save()
     uploadJSONToRedis(frameID, newFrame.dataValues)
@@ -320,13 +323,13 @@ async function getAllFrames(renderID) {
 }
 
 function generatePresignedURL(ID) {
-    var filePath = "outputs/" + ID + ".mp4";
+    var filePath = "outputs/" + ID.toString() + ".mp4";
     const url = S3.getSignedUrl('getObject', {
         Bucket: bucketName,
         Key: filePath,
         Expires: 21600 // 6hrs
     })
-    return url
+    return url.toString()
 }
 
 module.exports = {

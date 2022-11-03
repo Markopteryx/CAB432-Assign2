@@ -39,7 +39,6 @@ if (!fs.existsSync(outputDir)){
 // Extends the Message Visibility
 async function visibilityExtender(handle) {
     const duration = 120;
-    //await new Promise(r => setTimeout(r, 60000))
     while(working) {
         var extended = await extendFrameVisibility(handle, duration)
         if (!extended) {
@@ -79,6 +78,10 @@ async function main() {
         completeStatus : true,
         frameURL : frameURL,
     })
+
+    if(!updatedFrame) {
+        return
+    }
 
     var updatedRender = await incrementRender(message['renderID'])
 
