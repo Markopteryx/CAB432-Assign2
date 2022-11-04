@@ -103,7 +103,7 @@ async function main() {
         } 
 
         var outputFilePath = `outputs/${message['renderID']}.mp4`
-        // FFMPEG or Blender Merge
+        // FFMPEG Merge
         execSync(`${ffmpegPath} -framerate ${renderFPS} -i "images/${message['renderID']}_%d.png" -vcodec libx264 -movflags +faststart ${outputFilePath}`).toString("utf8")
 
         // Upload Video

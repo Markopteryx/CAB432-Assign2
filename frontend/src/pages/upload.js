@@ -81,7 +81,11 @@ function Upload() {
         <h4>Example Blend Files</h4>
         <a href="https://cab432-markouksanovic.s3.ap-southeast-2.amazonaws.com/examples/fast_cube.blend" download> Fast Cube </a>
         <br></br>
-        <a href="https://cab432-markouksanovic.s3.ap-southeast-2.amazonaws.com/examples/fast_cube.blend" download> Test </a>
+        <a href="https://cab432-markouksanovic.s3.ap-southeast-2.amazonaws.com/examples/dog.blend" download> Dog </a>
+        <br></br>
+        <a href="https://cab432-markouksanovic.s3.ap-southeast-2.amazonaws.com/examples/smash.blend" download> Smash </a>
+        <br></br>
+        <a href="https://cab432-markouksanovic.s3.ap-southeast-2.amazonaws.com/examples/sun.blend" download> Sun </a>
     </div>
   )
 }
