@@ -40,7 +40,7 @@ resource "aws_launch_configuration" "n8039062-backend" {
   key_name             = "marko-assign1"
   iam_instance_profile = "ec2SSMCab432"
   image_id             = "ami-02eae4391d6cad044"
-  instance_type        = "t2.small"
+  instance_type        = "t3.medium"
   security_groups      = ["sg-032bd1ff8cf77dbb9"]
   user_data            = data.template_file.backend.rendered
 }
@@ -51,7 +51,7 @@ resource "aws_launch_configuration" "n8039062-worker" {
   key_name             = "marko-assign1"
   iam_instance_profile = "ec2SSMCab432"
   image_id             = "ami-02eae4391d6cad044"
-  instance_type        = "t2.small"
+  instance_type        = "t3.medium"
   security_groups      = ["sg-032bd1ff8cf77dbb9"]
   user_data            = data.template_file.worker.rendered
 }
@@ -61,7 +61,13 @@ resource "aws_autoscaling_group" "n8039062-worker-ASG" {
   name                 = "${aws_launch_configuration.n8039062-worker.name}"
   launch_configuration = aws_launch_configuration.n8039062-worker.name
   min_size             = 1
-  max_size             = 3
+  max_size             = 5
+  enabled_metrics = [
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupInServiceInstances",
+    "GroupTotalInstances"
+  ]
   metrics_granularity = "1Minute"
   lifecycle {
     create_before_destroy = true
@@ -79,7 +85,7 @@ resource "aws_autoscaling_policy" "n8039062-worker-ASG-policy" {
   adjustment_type        = "ChangeInCapacity"
   autoscaling_group_name = aws_autoscaling_group.n8039062-worker-ASG.name
   policy_type            = "TargetTrackingScaling"
-  estimated_instance_warmup = 300
+  estimated_instance_warmup = 120
 
   target_tracking_configuration {
     predefined_metric_specification {
@@ -96,6 +102,12 @@ resource "aws_autoscaling_group" "n8039062-backend-ASG" {
   launch_configuration = aws_launch_configuration.n8039062-backend.name
   min_size             = 1
   max_size             = 2
+  enabled_metrics = [
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupInServiceInstances",
+    "GroupTotalInstances"
+  ]
   metrics_granularity = "1Minute"
 
   lifecycle {
@@ -228,7 +240,6 @@ data "aws_iam_policy_document" "SQS_policy_doc" {
     }
   }
 }
-
 
 // Backend Templete File
 data "template_file" "backend" {

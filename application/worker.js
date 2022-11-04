@@ -104,7 +104,7 @@ async function main() {
 
         var outputFilePath = `outputs/${message['renderID']}.mp4`
         // FFMPEG or Blender Merge
-        execSync(`${ffmpegPath} -framerate ${renderFPS} -pattern_type glob -i "images/${message['renderID']}_*.png" -vcodec libx264 -movflags +faststart ${outputFilePath}`).toString("utf8")
+        execSync(`${ffmpegPath} -framerate ${renderFPS} -i "images/${message['renderID']}_%d.png" -vcodec libx264 -movflags +faststart ${outputFilePath}`).toString("utf8")
 
         // Upload Video
         await uploadFile(outputFilePath);

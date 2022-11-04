@@ -34,7 +34,7 @@ function Upload() {
   };
 
   const ProgressHandler = (e) => {
-    loadTotalRef.current.innerHTML = `uploaded ${e.loaded} bytes of ${e.total}`;
+    loadTotalRef.current.innerHTML = `Uploaded ${(e.loaded)/1000} KBs of ${(e.total)/1000}`;
     var percent = (e.loaded / e.total) * 100;
     progressRef.current.value = Math.round(percent);
     statusRef.current.innerHTML = Math.round(percent) + "% uploaded...";
@@ -44,7 +44,7 @@ function Upload() {
     var response =  JSON.parse(e.target.responseText);
     statusRef.current.innerHTML = e.target.responseText;
     progressRef.current.value = 0;
-    await new Promise(r => setTimeout(r, 2000))
+    await new Promise(r => setTimeout(r, 500))
     navigate(`/render/${response['renderID']}`)
   };
 
