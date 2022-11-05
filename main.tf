@@ -91,7 +91,6 @@ resource "aws_autoscaling_policy" "n8039062-worker-ASG-policy" {
     predefined_metric_specification {
       predefined_metric_type = "ASGAverageCPUUtilization"
     }
-
     target_value = 50.0
   }
 }
@@ -227,6 +226,7 @@ resource "aws_sqs_queue_policy" "SQS_policy" {
   policy = data.aws_iam_policy_document.SQS_policy_doc.json
 }
 
+// SQS Access Policy
 data "aws_iam_policy_document" "SQS_policy_doc" {
   statement {
     sid = "_AllActions"

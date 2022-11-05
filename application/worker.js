@@ -130,9 +130,7 @@ async function main() {
         fsExtra.emptyDirSync(imageDir, (error) => {
 			if (error) {console.log(error, error.message)}
 		})
-		//console.log("Worker >> Cleaned up .blend file and image")
 	})();
-
 }
 
 // Keep working

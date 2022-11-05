@@ -95,7 +95,6 @@ app.post('/uploadBlends', upload.single('file'), async function (req, res) {
 	})();
 
 	// Send RDS State to Frontend
-	// ...
 	await createdRender
 	res.json({renderID: uuid})
 })

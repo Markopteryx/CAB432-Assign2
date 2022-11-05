@@ -170,6 +170,7 @@ async function getFileFromS3(key) {
     return S3Result;
 }
 
+// Get Render info from RDS
 async function getRenderRDS(renderID) {
     try{
         var newRender = await db.models.Render.findOne({ where: { renderID: renderID}});
@@ -177,6 +178,7 @@ async function getRenderRDS(renderID) {
     } catch (error) {}
 }
 
+// Get Frame info from RDS
 async function getFrameRDS(frameID) {
     try{
         var newFrame = await db.models.Frame.findOne({ where: { frameID: frameID}});
@@ -186,6 +188,7 @@ async function getFrameRDS(frameID) {
     }
 }
 
+// Get Render
 async function getRender(renderID) {
     var result = await getJSONFromRedis(renderID)
 
@@ -196,6 +199,7 @@ async function getRender(renderID) {
     return result
 }
 
+// Get Frame
 async function getFrame(frameID) {
     var result = await getJSONFromRedis(frameID)
 
@@ -206,6 +210,7 @@ async function getFrame(frameID) {
     return result
 }
 
+// Update Frame
 async function updateFrame(frameID, updateData) {
     var newFrame = await db.models.Frame.findOne({ where: { frameID: frameID}});
     if (!newFrame) {
@@ -217,6 +222,7 @@ async function updateFrame(frameID, updateData) {
     return newFrame
 }
 
+// Create Frame
 async function createFrame(frameID, renderID, frameNo){
     var frame = await db.models.Frame.create({
         frameID : frameID,
@@ -227,6 +233,7 @@ async function createFrame(frameID, renderID, frameNo){
     uploadJSONToRedis(frame.dataValues.frameID, frame.dataValues)
 }
 
+// Update Render
 async function updateRender(renderID, updateData) {
     var newRender = await db.models.Render.findOne({ where: { renderID: renderID}});
     newRender.set(updateData);
@@ -235,6 +242,7 @@ async function updateRender(renderID, updateData) {
     return newRender
 }
 
+// Create Render
 async function createRender(ID, bucketURL, totalFrames) {
     var render = await db.models.Render.create({
         renderID : ID,
@@ -245,6 +253,7 @@ async function createRender(ID, bucketURL, totalFrames) {
     uploadJSONToRedis(render.dataValues.renderID, render.dataValues)
 }
 
+// Increment Render Frames
 async function incrementRender(renderID){
     var newRender = await db.models.Render.findOne({ where: { renderID: renderID}});
     newRender['framesCompleted'] = newRender['framesCompleted'] + 1
@@ -273,6 +282,7 @@ async function sendSQSMessage(renderID, frameID, frameNo, blendFile) {
     }
 }
 
+// Get SQS Message
 async function getSQSMessage() {
     try{
         const params = {
@@ -297,6 +307,7 @@ async function getSQSMessage() {
     }
 }; 
 
+// Extend Visibility of SQS Message
 async function extendFrameVisibility(handle, duration) {
     var params = {
         QueueUrl : "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n8039062-Assign2-SQS",
@@ -308,6 +319,7 @@ async function extendFrameVisibility(handle, duration) {
       });
 }
 
+// Delete SQS Message
 async function deleteSQSMessage(handle) {
     var deleteParams = {
         QueueUrl: "https://sqs.ap-southeast-2.amazonaws.com/901444280953/n8039062-Assign2-SQS",
@@ -317,11 +329,13 @@ async function deleteSQSMessage(handle) {
       console.log("Worker >> Finished Frame")
 }
 
+// Get all Frames from RDS
 async function getAllFrames(renderID) {
     var Frames = await db.models.Frame.findAll({ where: { renderID: renderID}});
     return Frames
 }
 
+// Create Pre-signed URL
 function generatePresignedURL(ID) {
     var filePath = "outputs/" + ID.toString() + ".mp4";
     const url = S3.getSignedUrl('getObject', {
