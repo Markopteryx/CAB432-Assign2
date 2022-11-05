@@ -317,7 +317,7 @@ variable "DB_PASSWORD" {
 }
 
 variable "REDIS_ENDPOINT" {
-    default = "n8039062-assign2.km2jzi.ng.0001.apse2.cache.amazonaws.com"
+    default = "n8039062-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com"
     description = "AWS Redis Primary Endpoint"
     type = string
 }

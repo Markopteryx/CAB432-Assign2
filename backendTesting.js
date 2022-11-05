@@ -3,11 +3,19 @@ import { sleep } from 'k6';
   
 const binFile = open('fast_cube.blend', 'b');
 
-export let options = {
-    duration : '1m',
-    vus : 500,
+export const options = {
+  scenarios: {
+    constant_request_rate: {
+      executor: 'constant-arrival-rate',
+      rate: 10,
+      timeUnit: '1s',
+      duration: '10m',
+      preAllocatedVUs: 30,
+      maxVUs: 50,
+    },
+  },
 };
-  
+
 export default function () {
     const data = {
       file: http.file(binFile, 'fast_cube.blend'),

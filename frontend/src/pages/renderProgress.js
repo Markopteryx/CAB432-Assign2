@@ -2,8 +2,8 @@ import React from 'react'
 import { useInterval } from "./useInterval";
 import { useParams } from "react-router-dom";
 import { ProgressBar } from 'react-bootstrap';
-import "bootstrap/dist/css/bootstrap.min.css"; 
 import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css"; 
 
 var API_URL;
 
